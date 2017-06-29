@@ -26,7 +26,7 @@ Reporting datasource for Tableau
 -  	QA-002_CustomerComplaint.sql 	
 -  	Qa-002_CustomerComplaint2.sql 	
 
-** Datasource for the sales reports**
+**Datasource for the sales reports**
 
 -  	SA-001_Sales.sql
 
