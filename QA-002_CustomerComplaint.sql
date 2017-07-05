@@ -29,7 +29,7 @@ CREATE OR REPLACE VIEW tableau."QA-002_CustomerComplaint" AS
                     WHEN get_qa002."Date_of_closing" IS NULL THEN 1
                     ELSE 0
                 END AS "Not closed"
-           FROM report.get_qa002('2015-01-01'::date::timestamp without time zone, '2017-04-25'::date::timestamp without time zone, 32) get_qa002("Period_date", "Site", "Customer_code", "Internal_reference", "Internal_claim_ID", "Customer_claim_ID", "Qty_defective_for_PPM", "Claim_status", "Claim_type", "Recurring", "Date_of_claim", "Date_of_1st_reply", "Date_of_action_plan", "Date_of_closing", "Days_to_reply", "Days_to_action_plan", "Days_to_closing", "CNQ_in_currency")
+           FROM report.get_qa002('2015-01-01'::date::timestamp without time zone, 'now'::text::date::timestamp without time zone, 32) get_qa002("Period_date", "Site", "Customer_code", "Internal_reference", "Internal_claim_ID", "Customer_claim_ID", "Qty_defective_for_PPM", "Claim_status", "Claim_type", "Recurring", "Date_of_claim", "Date_of_1st_reply", "Date_of_action_plan", "Date_of_closing", "Days_to_reply", "Days_to_action_plan", "Days_to_closing", "CNQ_in_currency")
 		  --ordonnée par Period_date
           ORDER BY get_qa002."Period_date"
         ), 
