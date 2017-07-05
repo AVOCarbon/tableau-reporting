@@ -31,7 +31,7 @@ WITH "Receptions_data" AS
                     get_lo001."Movement_date",
                     get_lo001."Price_change"
                    FROM report.get_lo001('2015-01-01'::date::timestamp without time zone, 
-					 '2017-04-25'::date::timestamp without time zone, 32) 
+					 'now'::text::date::timestamp without time zone, 32) 
 		 get_lo001("Period_date", 
 			   "Site", 
 			   "Supplier_code", 
@@ -65,7 +65,7 @@ WITH "Receptions_data" AS
 ), 
 "Transports_data" AS 
 (
---	retrieve 28 rows from the function "report.get_lo003" and store them in the  CTE, "transports"
+--	retrieve 28 rows from the function "report.get_lo003" and store them in the 1st CTE, "transports"
          WITH transports AS 
 				(
                  SELECT get_lo003."Period_date",
@@ -106,12 +106,14 @@ WITH "Receptions_data" AS
                     get_lo003."Payer_code",
                     get_lo003."Total_cost_CUR",
                     get_lo003."Total_cost_EUR",
-						--stock dans on_time_prop 1 si la TA_delay_days de la get_lo003 est <> 0, sinon 1
+--	logic : on_time_prop equals 1 if "TA_delay_days" from "get_lo003" <> 0
+--	else 1
                         CASE
                             WHEN get_lo003."TA_delay_days" <> 0 THEN 0
                             ELSE 1
                         END AS on_time_prop
-                   FROM report.get_lo003('2015-01-01'::date::timestamp without time zone, '2017-04-25'::date::timestamp without time zone, 32) 
+                   FROM report.get_lo003('2015-01-01'::date::timestamp without time zone, 
+					 'now'::text::date::timestamp without time zone, 32) 
 				   get_lo003("Period_date", "Site", "Carrier_code", 
 				   from_code, 
 				   "Origin", 
@@ -271,7 +273,7 @@ WITH "Receptions_data" AS
                            FROM transports))
                 )
 --	retrieve 5 fields from the CTE, "customers_suppliers"
---  6 fields from the CTE, "t03_suppliers", 
+--  	6 fields from the CTE, "t03_suppliers", 
 --	4 fields from the CTE, "customers_suppliers2" 
 --	1 field from the CTE, "customers_suppliers3"
 --	2 field from the CTE, "receptions_data" 
