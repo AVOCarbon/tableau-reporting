@@ -39,7 +39,7 @@ CREATE OR REPLACE VIEW tableau."LO-003_Transports" AS
         ), 
 --récupère 28 champs de la fonction report.get_lo003 dans la sous requête Transports_data
 		"Transports_data" AS (
-         WITH receptions AS (
+         WITH transports AS (
                  SELECT get_lo003."Period_date",
                     get_lo003."Site",
                     get_lo003."Carrier_code",
@@ -101,11 +101,11 @@ CREATE OR REPLACE VIEW tableau."LO-003_Transports" AS
                     "Axis_Customers_Suppliers"."Selling_payment_term_days",
                     "Axis_Customers_Suppliers"."Selling_payment_term_type"
                    FROM report."Axis_Customers_Suppliers"
-				  --condition : récupère uniquement les enregistrements ou le Site de la Axis_Customers_Suppliers est égal à celle de la première sous requête receptions 
-				  --ainsi que le Customer_code de la Axis_Customers_Suppliers est égal au from_code de la première sous requête receptions
-                  WHERE (("Axis_Customers_Suppliers"."Site"::text, "Axis_Customers_Suppliers"."Customer_code"::text) IN ( SELECT receptions_1."Site",
-                            receptions_1.from_code
-                           FROM receptions receptions_1))
+				  --condition : récupère uniquement les enregistrements ou le Site de la Axis_Customers_Suppliers est égal à celle de la sous requête transports 
+				  --ainsi que le Customer_code de la Axis_Customers_Suppliers est égal au from_code de la sous requête transports
+                  WHERE (("Axis_Customers_Suppliers"."Site"::text, "Axis_Customers_Suppliers"."Customer_code"::text) IN ( SELECT transports."Site",
+                            transports.from_code
+                           FROM transports ))
                 ), 
 --recupère 16 champs de la vue Axis_Customers_Suppliers dans la sous requête customers_suppliers2		
 				customers_suppliers2 AS (
@@ -126,11 +126,11 @@ CREATE OR REPLACE VIEW tableau."LO-003_Transports" AS
                     "Axis_Customers_Suppliers"."Selling_payment_term_days",
                     "Axis_Customers_Suppliers"."Selling_payment_term_type"
                    FROM report."Axis_Customers_Suppliers"
-				  --condition : récupère uniquement les enregistrements ou le Site de la Axis_Customers_Suppliers est égal à celle de la première sous requête receptions 
-				  ----ainsi que le Customer_code de la Axis_Customers_Suppliers est égal au to_code de la première sous requête receptions
-                  WHERE (("Axis_Customers_Suppliers"."Site"::text, "Axis_Customers_Suppliers"."Customer_code"::text) IN ( SELECT receptions_1."Site",
-                            receptions_1.to_code
-                           FROM receptions receptions_1))
+				  --condition : récupère uniquement les enregistrements ou le Site de la Axis_Customers_Suppliers est égal à celle de la sous requête transports
+				  ----ainsi que le Customer_code de la Axis_Customers_Suppliers est égal au to_code de la sous requête transports
+                  WHERE (("Axis_Customers_Suppliers"."Site"::text, "Axis_Customers_Suppliers"."Customer_code"::text) IN ( SELECT transports."Site",
+                            transports.to_code
+                           FROM transports))
                 ), 
 --recupère 16 champs de la vue Axis_Customers_Suppliers dans la sous requête customers_suppliers3				
 				customers_suppliers3 AS (
@@ -151,11 +151,11 @@ CREATE OR REPLACE VIEW tableau."LO-003_Transports" AS
                     "Axis_Customers_Suppliers"."Selling_payment_term_days",
                     "Axis_Customers_Suppliers"."Selling_payment_term_type"
                    FROM report."Axis_Customers_Suppliers"
-				  --condition : récupère uniquement les enregistrements ou le Site de la Axis_Customers_Suppliers est égal à celle de la première sous requête receptions 
-				  ----ainsi que le Customer_code de la Axis_Customers_Suppliers est égal au Carrier_code de la première sous requête receptions
-                  WHERE (("Axis_Customers_Suppliers"."Site"::text, "Axis_Customers_Suppliers"."Customer_code"::text) IN ( SELECT receptions_1."Site",
-                            receptions_1."Carrier_code"
-                           FROM receptions receptions_1))
+				  --condition : récupère uniquement les enregistrements ou le Site de la Axis_Customers_Suppliers est égal à celle de la sous requête transports 
+				  ----ainsi que le Customer_code de la Axis_Customers_Suppliers est égal au Carrier_code de la sous requête transports
+                  WHERE (("Axis_Customers_Suppliers"."Site"::text, "Axis_Customers_Suppliers"."Customer_code"::text) IN ( SELECT transports."Site",
+                            transports."Carrier_code"
+                           FROM transports))
                 ), 
 --recupère 22 champs de la table T03_Suppliers dans la sous requête t03_suppliers		
 				t03_suppliers AS (
@@ -182,11 +182,11 @@ CREATE OR REPLACE VIEW tableau."LO-003_Transports" AS
                     "T03_Suppliers"."Payment_term_type",
                     "T03_Suppliers"."Supplier_revision_level"
                    FROM dw."T03_Suppliers"
-				  --condition : recupère uniquement les enregistrements ou le Site de la T03_Suppliers est égal à celle de la première sous requête receptions
-				  --ainsi que le Supplier_code de la T03_Suppliers égal au from_code de la première sous requête receptions
-                  WHERE (("T03_Suppliers"."Site"::text, "T03_Suppliers"."Supplier_code"::text) IN ( SELECT receptions_1."Site",
-                            receptions_1.from_code
-                           FROM receptions receptions_1))
+				  --condition : recupère uniquement les enregistrements ou le Site de la T03_Suppliers est égal à celle de la sous requête transports
+				  --ainsi que le Supplier_code de la T03_Suppliers égal au from_code de la sous requête transports
+                  WHERE (("T03_Suppliers"."Site"::text, "T03_Suppliers"."Supplier_code"::text) IN ( SELECT transports."Site",
+                            transports.from_code
+                           FROM transports))
                 ), 
 --recupère 5 champs de la sous requête Receptions_data dans receptions_data			
 				receptions_data AS (
@@ -199,13 +199,13 @@ CREATE OR REPLACE VIEW tableau."LO-003_Transports" AS
 				  --condition : recupère uniquement les enregistrements ou le Site de la sous requête Receptions_data est égal au to_code de la sous requête receptions 
 				  --ainsi que le Supplier_code de la sous requête Receptions_data est égal au from_code de la sous requête receptions 
 				  --ainsi que la Period_date de la sous requête Receptions_data est égal à celui de la sous requête receptions
-                  WHERE (("Receptions_data"."Site"::text, "Receptions_data"."Supplier_code"::text, "Receptions_data"."Period_date") IN ( SELECT receptions_1.to_code,
-                            receptions_1.from_code,
-                            receptions_1."Period_date"
-                           FROM receptions receptions_1))
+                  WHERE (("Receptions_data"."Site"::text, "Receptions_data"."Supplier_code"::text, "Receptions_data"."Period_date") IN ( SELECT transports.to_code,
+                            transports.from_code,
+                            transports."Period_date"
+                           FROM transports))
                 )
 --recupère 5 champs de la sous requête customers_suppliers, 6 champs de la sous requête t03_suppliers, 4 champs de la sous requête customers_suppliers2, 1 champ de la sous requête customers_suppliers3
---2 champs de la sous requête receptions_data et 28 champs de la sous requête receptions
+--2 champs de la sous requête receptions_data et 28 champs de la sous requête transports
          SELECT customers_suppliers."Customer_name" AS "Supplier_name",
             customers_suppliers."Customer_incoterm"::text AS "Supplier_incoterm",
             customers_suppliers."Customer_interco" AS "Supplier_interco",
@@ -223,41 +223,41 @@ CREATE OR REPLACE VIEW tableau."LO-003_Transports" AS
             customers_suppliers3."Customer_name" AS "Carrier_name",
             receptions_data."Reception_value_EUR",
             receptions_data."Reception_qty",
-            receptions."Period_date",
-            receptions."Site",
-            receptions."Carrier_code",
-            receptions.from_code,
-            receptions."Origin",
-            receptions.to_code,
-            receptions."Destination",
-            receptions."ETD_date",
-            receptions."ATD_date",
-            receptions."ETA_date",
-            receptions."ATA_date",
-            receptions."TD_delay_days",
-            receptions."TA_delay_days",
-            receptions."E_transit_days",
-            receptions."A_transit_days",
-            receptions."Shipment_type",
-            receptions."Premium_freight",
-            receptions."Costing_unit",
-            receptions."Units_shipped",
-            receptions."Invoice_amount_CUR",
-            receptions."Invoice_amount_EUR",
-            receptions."Transport_cost_CUR",
-            receptions."Transport_cost_EUR",
-            receptions."Tax_duty_cost_EUR",
-            receptions."Payer_code",
-            receptions."Total_cost_CUR",
-            receptions."Total_cost_EUR",
-            receptions.on_time_prop
-           FROM receptions
+            transports."Period_date",
+            transports."Site",
+            transports."Carrier_code",
+            transports.from_code,
+            transports."Origin",
+            transports.to_code,
+            transports."Destination",
+            transports."ETD_date",
+            transports."ATD_date",
+            transports."ETA_date",
+            transports."ATA_date",
+            transports."TD_delay_days",
+            transports."TA_delay_days",
+            transports."E_transit_days",
+            transports."A_transit_days",
+            transports."Shipment_type",
+            transports."Premium_freight",
+            transports."Costing_unit",
+            transports."Units_shipped",
+            transports."Invoice_amount_CUR",
+            transports."Invoice_amount_EUR",
+            transports."Transport_cost_CUR",
+            transports."Transport_cost_EUR",
+            transports."Tax_duty_cost_EUR",
+            transports."Payer_code",
+            transports."Total_cost_CUR",
+            transports."Total_cost_EUR",
+            transports.on_time_prop
+           FROM transports
 		     --jointure des sous requêtes
-             LEFT JOIN report."Axis_Customers_Suppliers" customers_suppliers ON receptions."Site"::text = customers_suppliers."Site"::text AND receptions.from_code::text = customers_suppliers."Customer_code"::text
-             LEFT JOIN dw."T03_Suppliers" t03_suppliers ON receptions."Site"::text = t03_suppliers."Site"::text AND receptions.from_code::text = t03_suppliers."Supplier_code"::text
-             LEFT JOIN report."Axis_Customers_Suppliers" customers_suppliers2 ON receptions."Site"::text = customers_suppliers2."Site"::text AND receptions.to_code::text = customers_suppliers2."Customer_code"::text
-             LEFT JOIN report."Axis_Customers_Suppliers" customers_suppliers3 ON receptions."Site"::text = customers_suppliers3."Site"::text AND receptions."Carrier_code"::text = customers_suppliers3."Customer_code"::text
-             LEFT JOIN "Receptions_data" receptions_data ON receptions.to_code::text = receptions_data."Site"::text AND receptions.from_code::text = receptions_data."Supplier_code"::text AND receptions."Period_date" = receptions_data."Period_date"
+             LEFT JOIN report."Axis_Customers_Suppliers" customers_suppliers ON transports."Site"::text = customers_suppliers."Site"::text AND transports.from_code::text = customers_suppliers."Customer_code"::text
+             LEFT JOIN dw."T03_Suppliers" t03_suppliers ON transports."Site"::text = t03_suppliers."Site"::text AND transports.from_code::text = t03_suppliers."Supplier_code"::text
+             LEFT JOIN report."Axis_Customers_Suppliers" customers_suppliers2 ON transports."Site"::text = customers_suppliers2."Site"::text AND transports.to_code::text = customers_suppliers2."Customer_code"::text
+             LEFT JOIN report."Axis_Customers_Suppliers" customers_suppliers3 ON transports."Site"::text = customers_suppliers3."Site"::text AND transports."Carrier_code"::text = customers_suppliers3."Customer_code"::text
+             LEFT JOIN "Receptions_data" receptions_data ON transports.to_code::text = receptions_data."Site"::text AND transports.from_code::text = receptions_data."Supplier_code"::text AND transports."Period_date" = receptions_data."Period_date"
         )
 --recupère 48 champs de la sous requête Transports_data 
  SELECT "Transports_data"."Supplier_name",
