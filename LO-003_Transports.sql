@@ -26,7 +26,7 @@ CREATE OR REPLACE VIEW tableau."LO-003_Transports" AS
                     get_lo001."Purchasing_currency",
                     get_lo001."Movement_date",
                     get_lo001."Price_change"
-                   FROM report.get_lo001('2015-01-01'::date::timestamp without time zone, 'now'::date::timestamp without time zone, 32) get_lo001("Period_date", "Site", "Supplier_code", "Internal_reference", "Shipment_number", "PO_number", "Quantity", "Movement_value_EUR", "Movement_value_CUR", "Reception_price_EUR", "Reception_price_CUR", "Variance_refprice_EUR", "Variance_refprice_CUR", "Variance_value@refprice_EUR", "Variance_value@refprice_CUR", "Purchasing_currency", "Movement_date", "Price_change")
+                   FROM report.get_lo001('2015-01-01'::date::timestamp without time zone, 'now'::text::date::timestamp without time zone, 32) get_lo001("Period_date", "Site", "Supplier_code", "Internal_reference", "Shipment_number", "PO_number", "Quantity", "Movement_value_EUR", "Movement_value_CUR", "Reception_price_EUR", "Reception_price_CUR", "Variance_refprice_EUR", "Variance_refprice_CUR", "Variance_value@refprice_EUR", "Variance_value@refprice_CUR", "Purchasing_currency", "Movement_date", "Price_change")
                 )
 		 --récupère 5 champs de la sous requête receptions afin de crée 2 nouveau champs : la somme des receptions."Movement_value_EUR" et la somme des receptions."Quantity" grouper par Period_date, Site et Supplier_code
          SELECT receptions."Period_date",
@@ -80,7 +80,7 @@ CREATE OR REPLACE VIEW tableau."LO-003_Transports" AS
                             WHEN get_lo003."TA_delay_days" <> 0 THEN 0
                             ELSE 1
                         END AS on_time_prop
-                   FROM report.get_lo003('2015-01-01'::date::timestamp without time zone, 'now'::date::timestamp without time zone, 32) get_lo003("Period_date", "Site", "Carrier_code", from_code, "Origin", to_code, "Destination", "ETD_date", "ATD_date", "ETA_date", "ATA_date", "TD_delay_days", "TA_delay_days", "E_transit_days", "A_transit_days", "Shipment_mode", "Shipment_type", "Premium_freight", "Costing_unit", "Units_shipped", "Invoice_amount_CUR", "Invoice_amount_EUR", "Transport_cost_CUR", "Transport_cost_EUR", "Tax_duty_cost_CUR", "Tax_duty_cost_EUR", "Payer_code", "Total_cost_CUR", "Total_cost_EUR")
+                   FROM report.get_lo003('2015-01-01'::date::timestamp without time zone, 'now'::text::date::timestamp without time zone, 32) get_lo003("Period_date", "Site", "Carrier_code", from_code, "Origin", to_code, "Destination", "ETD_date", "ATD_date", "ETA_date", "ATA_date", "TD_delay_days", "TA_delay_days", "E_transit_days", "A_transit_days", "Shipment_mode", "Shipment_type", "Premium_freight", "Costing_unit", "Units_shipped", "Invoice_amount_CUR", "Invoice_amount_EUR", "Transport_cost_CUR", "Transport_cost_EUR", "Tax_duty_cost_CUR", "Tax_duty_cost_EUR", "Payer_code", "Total_cost_CUR", "Total_cost_EUR")
                 ), 
 --recupère 16 champs de la vue Axis_Customers_Suppliers dans la sous requête customers_suppliers
 				customers_suppliers AS (
