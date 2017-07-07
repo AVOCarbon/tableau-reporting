@@ -1,12 +1,15 @@
--- View: tableau."FI-006_Inventory"
+--	View: tableau."FI-006_Inventory"
 
--- DROP VIEW tableau."FI-006_Inventory";
+--	DROP VIEW tableau."FI-006_Inventory";
 
---Crée la vue tableau."FI-006_Inventory"
+--	Crate view tableau."FI-006_Inventory"
+
 CREATE OR REPLACE VIEW tableau."FI-006_Inventory" AS 
---recupère l'union des 2 première requêtes
- WITH inventory AS (
-		 --recupère 13 champs de la fonction report.get_fi006 ainsi que l'obsolete = 'N'
+--	1st CTE: "inventory"
+ WITH inventory AS 
+ (
+--	retrieve 13 fields from function, report."get_fi006" 
+--	and create one static field, "obsolete" with 'N' in the column
          SELECT 'N'::text AS obsolete,
             get_fi006."Inventory_value_net_EUR" AS "value_EUR",
             get_fi006."Period_date",
@@ -21,11 +24,25 @@ CREATE OR REPLACE VIEW tableau."FI-006_Inventory" AS
             get_fi006."Inventory_value_net_EUR",
             get_fi006."Inventory_obsolete",
             get_fi006."Inventory_lastmovement"
-           FROM report.get_fi006('2015-01-01'::date::timestamp without time zone, 'now'::text::date::timestamp without time zone, 32) get_fi006("Period_date", "Site", "Internal_reference", "Inventory_quantity", "Inventory_location", "Inventory_unitprice", "Inventory_value_gross_CUR", "Inventory_value_gross_EUR", "Inventory_value_net_CUR", "ratePerEur", "Inventory_value_net_EUR", "Inventory_obsolete", "Inventory_lastmovement")
+           FROM report.get_fi006('2015-01-01'::date::timestamp without time zone, 'now'::text::date::timestamp without time zone, 32) 
+		   get_fi006("Period_date", 
+					"Site", 
+					"Internal_reference", 
+					"Inventory_quantity", 
+					"Inventory_location", 
+					"Inventory_unitprice", 
+					"Inventory_value_gross_CUR", 
+					"Inventory_value_gross_EUR", 
+					"Inventory_value_net_CUR", 
+					"ratePerEur", 
+					"Inventory_value_net_EUR", 
+					"Inventory_obsolete", 
+					"Inventory_lastmovement")
         UNION ALL
-		--recupère 13 champs de la fonction report.get_fi006 ainsi que l'obsolete = 'Y'
+--	retrieve 13 fields from function, report."get_fi006" 
+--	and create one static field, "obsolete" with 'Y' in the column
          SELECT 'Y'::text AS obsolete,
-		    --recupère la valeur obsolete l'inventory_value
+--	retrieve the obsolete value e.g "Inventory_value_gross_EUR" minus "Inventory_value_net_EUR"
             get_fi006."Inventory_value_gross_EUR" - get_fi006."Inventory_value_net_EUR" AS "value_EUR",
             get_fi006."Period_date",
             get_fi006."Site",
@@ -39,25 +56,38 @@ CREATE OR REPLACE VIEW tableau."FI-006_Inventory" AS
             get_fi006."Inventory_value_net_EUR",
             get_fi006."Inventory_obsolete",
             get_fi006."Inventory_lastmovement"
-           FROM report.get_fi006('2015-01-01'::date::timestamp without time zone, 'now'::text::date::timestamp without time zone, 32) get_fi006("Period_date", "Site", "Internal_reference", "Inventory_quantity", "Inventory_location", "Inventory_unitprice", "Inventory_value_gross_CUR", "Inventory_value_gross_EUR", "Inventory_value_net_CUR", "ratePerEur", "Inventory_value_net_EUR", "Inventory_obsolete", "Inventory_lastmovement")
-	--condition : la valeur de la Inventory_value_gross_EUR - Inventory_value_net_EUR doit être supérieur à 0
+           FROM report.get_fi006('2015-01-01'::date::timestamp without time zone, 'now'::text::date::timestamp without time zone, 32) 
+		   get_fi006("Period_date", 
+		   "Site", 
+		   "Internal_reference", 
+		   "Inventory_quantity", 
+		   "Inventory_location", 
+		   "Inventory_unitprice", 
+		   "Inventory_value_gross_CUR", 
+		   "Inventory_value_gross_EUR", 
+		   "Inventory_value_net_CUR", 
+		   "ratePerEur", 
+		   "Inventory_value_net_EUR", 
+		   "Inventory_obsolete", 
+		   "Inventory_lastmovement")
+--	WHERE clause : value of "Inventory_value_gross_EUR" minus "Inventory_value_net_EUR" > 0
           WHERE (get_fi006."Inventory_value_gross_EUR" - get_fi006."Inventory_value_net_EUR") > 0::numeric
-        ), 
-       --recupère 3 champs de la vue Axis_Reference dans la sous requête axis_reference		
-		axis_reference AS (
+), 
+--	2nd CTE : axis_reference
+--	retrieve 3 rows from the view, "Axis_Reference" 		
+axis_reference AS 
+(
          SELECT "Axis_Reference"."Sc_inventory_type",
             "Axis_Reference"."Site",
             "Axis_Reference"."Reference_internal"
            FROM report."Axis_Reference"
-	--condition : recupère uniquement les enregistrements ou le Site de la Axis_Reference 
-	--est égal à celle de la première sous requête inventory
-	--ainsi que la Reference_internal de la Axis_Reference est égal à la Internal_reference 
-	--de la première sous requête inventory
+--	WHERE Clause : retrieve rows where "Site" and "Reference_internal" from "Axis_Reference" 
+--	is in "Site" and "Internal_reference" from the CTE, "inventory"
           WHERE (("Axis_Reference"."Site"::text, "Axis_Reference"."Reference_internal"::text) IN ( SELECT inventory_1."Site",
                     inventory_1."Internal_reference"
                    FROM inventory inventory_1))
-        )
---recupère 14 champs de la sous requête inventory et 1 champ de la sous requête axis_reference
+)
+--	retrieve 14 fields from the CTE, "inventory" and one field from the CTE, "axis_reference"
  SELECT inventory.obsolete,
     inventory."value_EUR",
     inventory."Period_date",
@@ -74,8 +104,9 @@ CREATE OR REPLACE VIEW tableau."FI-006_Inventory" AS
     inventory."Inventory_lastmovement",
     axis_reference."Sc_inventory_type"
    FROM inventory
-     --jointure des sous requêtes
-     JOIN axis_reference ON inventory."Site"::text = axis_reference."Site"::text AND inventory."Internal_reference"::text = axis_reference."Reference_internal"::text;
+--	join on CTE, "axis_reference" and CTE, "inventory"
+     JOIN axis_reference 
+	 ON inventory."Site"::text = axis_reference."Site"::text AND inventory."Internal_reference"::text = axis_reference."Reference_internal"::text;
 
 ALTER TABLE tableau."FI-006_Inventory"
   OWNER TO avocarbon;
